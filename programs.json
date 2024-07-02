@@ -16,7 +16,7 @@
     {"name": "Nuclei", "cmd": "nuclei -l $TARGET_unique_doms.txt -t /home/kali/.bbot/tools/nuclei-templates/ -o $TARGET_nuclei.txt"},
     {"name": "GF Pattern Matching", "cmd": "gf xss $TARGET_unique_URLs.txt | tee $TARGET_gf_xss.txt"},
     {"name": "Sn1per", "cmd": "sudo sniper -f $TARGET_unique_doms.txt -m nuke -w $TARGET_Workspace | tee $TARGET_sniper.txt"},
-    {"name": "Autorecon", "cmd": "sudo autorecon -t $TARGET_unique_doms.txt --all-plugins --accessible -v --wpscan.api-token Z8IRzWJRsn0CbxrZFNy8vvfAzff6xBunqbMY8kmhu3s | -tee $TARGET_autorecon.txt "},
+    {"name": "Autorecon", "cmd": "sudo autorecon -t $TARGET_unique_doms.txt --all-plugins --accessible -v --wpscan.api-token <WPScan API KEY> | -tee $TARGET_autorecon.txt "},
     {"name": "LinkFinder", "cmd": "python3 /usr/share/sniper/plugins/LinkFinder/linkfinder.py -d 1000 -v $TARGET_unique_URLs.txt | tee $TARGET_links_found.txt"},
     {"name": "Meg", "cmd": "meg -d 1000 -v / $TARGET_httprobed.txt | $TARGET_MEG_massout.txt"},
     {"name": "FFUF", "cmd": "ffuf -w ~/wordlists/raft-large-directories.txt -u https://$TARGET/FUZZ -o $TARGET_ffuf.txt"},
