@@ -125,7 +125,7 @@ class GUI:
 
     def load_programs(self):
         try:
-            with open(os.path.expanduser("~/tools/multiviz/programs.json")) as f:
+            with open(os.path.expanduser("~/tools/vizualist/programs.json")) as f:
                 self.programs = json.load(f)
             for program in self.programs:
                 self.programs_listbox.insert(tk.END, program["name"])
