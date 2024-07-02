@@ -1,5 +1,5 @@
 # Vizualist
-markdown
+The Program Launcher and Console is a Python-based GUI application designed for bug bounty hunters. It allows users to dynamically select, configure, and execute a series of security tools against specified targets. The application provides an intuitive interface for managing toolsets, adjusting targets, and viewing real-time command outputs, streamlining the process of running multiple reconnaissance and vulnerability assessment tools.
 
 # Program Launcher and Console
 
@@ -72,7 +72,7 @@ This project is a Python-based GUI application that allows users to select, conf
     {"name": "HTTprobe", "cmd": "cat $TARGET_resolved.txt | httprobe | tee $TARGET_httprobed.txt"},
     {"name": "403-checker", "cmd": "sudo ~/tools/multiviz/curly.sh $TARGET_unique_doms.txt ~/tools/multiviz/403.txt | tee $TARGET_403.txt"}
 ]
-
+```
 Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
