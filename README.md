@@ -27,8 +27,9 @@ This project is a Python-based GUI application that allows users to select, conf
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/yourusername/program-launcher.git
-    cd program-launcher
+    git clone https://github.com/0daysaftertomorrow/Vizualist
+    cd Vizualist
+    python3 main.py
     ```
 
 2. Install the required Python packages:
