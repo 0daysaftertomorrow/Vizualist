@@ -5,13 +5,13 @@
         "description": "Finds subdomains using Assetfinder and saves the output to a file."
     },
     {
-        "name": "Subfinder -d",
-        "cmd": "subfinder -d $TARGET | tee $TARGET_subfinder.txt",
+        "name": "Subfinder -domain",
+        "cmd": "subfinder -all -d $TARGET | tee $TARGET_subfinder.txt",
         "description": "Finds subdomains using Subfinder for a single domain and saves the output to a file."
     },
     {
         "name": "Subfinder -list",
-        "cmd": "subfinder -l $TARGET_FILE | tee $TARGET_subfinder_list.txt",
+        "cmd": "subfinder -l -all $TARGET_FILE | tee $TARGET_subfinder_list.txt",
         "description": "Finds subdomains using Subfinder from a list of domains and saves the output to a file."
     },
     {
@@ -26,7 +26,7 @@
     },
     {
         "name": "MassDNS",
-        "cmd": "massdns -r ~/tools/multiviz/resolve.txt -t A -o S -w $TARGET_massdns.txt /usr/share/seclists/Discovery/DNS/bug-bounty-program-subdomains-trickest-inventory.txt",
+        "cmd": "massdns -r resolve.txt -t A -o S -w $TARGET_massdns.txt /usr/share/seclists/Discovery/DNS/bug-bounty-program-subdomains-trickest-inventory.txt",
         "description": "Resolves subdomains using MassDNS and saves the output to a file."
     },
     {
@@ -36,7 +36,7 @@
     },
     {
         "name": "Resolver",
-        "cmd": "shuffledns -list $TARGET_unique_doms.txt -r ~/tools/multiviz/resolve.txt -mode resolve | tee $TARGET_resolved.txt",
+        "cmd": "shuffledns -list $TARGET_unique_doms.txt -r resolve.txt -mode resolve | tee $TARGET_resolved.txt",
         "description": "Resolves subdomains using Shuffledns and saves the output to a file."
     },
     {
@@ -51,7 +51,7 @@
     },
     {
         "name": "403 Checker",
-        "cmd": "sudo ~/tools/multiviz/curly.sh $TARGET_unique_doms.txt ~/tools/multiviz/403.txt | tee $TARGET_403.txt",
+        "cmd": "sudo /home/kali/tools/multiviz/curly.sh $TARGET_unique_doms.txt /home/kali/multiviz/403.txt | tee $TARGET_403.txt",
         "description": "Checks for 403 Forbidden responses using a custom script and saves the output to a file."
     },
     {
