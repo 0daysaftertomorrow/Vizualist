@@ -1,142 +1,30 @@
 [
-    {
-        "name": "Assetfinder",
-        "cmd": "assetfinder $TARGET | tee $TARGET_assetfinder.txt",
-        "description": "Finds subdomains using Assetfinder and saves the output to a file."
-    },
-    {
-        "name": "Subfinder -domain",
-        "cmd": "subfinder -all -d $TARGET | tee $TARGET_subfinder.txt",
-        "description": "Finds subdomains using Subfinder for a single domain and saves the output to a file."
-    },
-    {
-        "name": "Subfinder -list",
-        "cmd": "subfinder -l -all $TARGET_FILE | tee $TARGET_subfinder_list.txt",
-        "description": "Finds subdomains using Subfinder from a list of domains and saves the output to a file."
-    },
-    {
-        "name": "Sublist3r",
-        "cmd": "sublist3r -d $TARGET -b -p 21,22,25,80,443,445,8080 -v -t 100 -e google.com | tee $TARGET_sublist3r.txt",
-        "description": "Finds subdomains using Sublist3r and saves the output to a file."
-    },
-    {
-        "name": "Amass",
-        "cmd": "amass enum -d $TARGET -o $TARGET_amass.txt",
-        "description": "Enumerates subdomains using Amass and saves the output to a file."
-    },
-    {
-        "name": "MassDNS",
-        "cmd": "massdns -r resolve.txt -t A -o S -w $TARGET_massdns.txt /usr/share/seclists/Discovery/DNS/bug-bounty-program-subdomains-trickest-inventory.txt",
-        "description": "Resolves subdomains using MassDNS and saves the output to a file."
-    },
-    {
-        "name": "Sort and Unique",
-        "cmd": "cat $TARGET_assetfinder.txt $TARGET_subfinder.txt $TARGET_sublist3r.txt $TARGET_amass.txt | sort | uniq | tee $TARGET_unique_doms.txt",
-        "description": "Combines and sorts subdomain lists, removes duplicates, and saves the output to a file."
-    },
-    {
-        "name": "Resolver",
-        "cmd": "shuffledns -list $TARGET_unique_doms.txt -r resolve.txt -mode resolve | tee $TARGET_resolved.txt",
-        "description": "Resolves subdomains using Shuffledns and saves the output to a file."
-    },
-    {
-        "name": "Dnsx Recon",
-        "cmd": "dnsx -d $TARGET -cdn -recon -re -w /usr/share/seclists/Discovery/DNS/bug-bounty-program-subdomains-trickest-inventory.txt -r ~/tools/multiviz/resolve.txt | tee $TARGET_dnsx_recon.txt",
-        "description": "Performs DNS reconnaissance using Dnsx and saves the output to a file."
-    },
-    {
-        "name": "HTTProbe",
-        "cmd": "cat $TARGET_resolved.txt | httprobe | tee $TARGET_httprobed.txt",
-        "description": "Probes resolved subdomains for HTTP/HTTPS services and saves the output to a file."
-    },
-    {
-        "name": "403 Checker",
-        "cmd": "sudo /home/kali/tools/multiviz/curly.sh $TARGET_unique_doms.txt /home/kali/multiviz/403.txt | tee $TARGET_403.txt",
-        "description": "Checks for 403 Forbidden responses using a custom script and saves the output to a file."
-    },
-    {
-        "name": "Waybackpy",
-        "cmd": "waybackpy -u https://$TARGET -ku -sub | tee $TARGET_wayback_urls.txt",
-        "description": "Retrieves URLs from Wayback Machine and saves the output to a file."
-    },
-    {
-        "name": "Gau",
-        "cmd": "echo $TARGET | sudo gau | tee $TARGET_gau.txt",
-        "description": "Extracts URLs using Gau and saves the output to a file."
-    },
-    {
-        "name": "Sort URLs",
-        "cmd": "cat $TARGET_httprobed.txt $TARGET_wayback_urls.txt $TARGET_gau.txt | sort | uniq | tee $TARGET_unique_urls.txt",
-        "description": "Combines and sorts URL lists, removes duplicates, and saves the output to a file."
-    },
-    {
-        "name": "Nuclei",
-        "cmd": "nuclei -l $TARGET_unique_urls.txt -t /home/kali/.bbot/tools/nuclei-templates/ -o $TARGET_nuclei.txt",
-        "description": "Performs vulnerability scanning using Nuclei and saves the output to a file."
-    },
-    {
-        "name": "GF Pattern Matching",
-        "cmd": "gf xss $TARGET_unique_urls.txt | tee $TARGET_gf_xss.txt",
-        "description": "Performs pattern matching using GF and saves the output to a file."
-    },
-    {
-        "name": "Sn1per",
-        "cmd": "sudo sniper -f $TARGET_unique_urls.txt -m nuke -w $TARGET_workspace | tee $TARGET_sniper.txt",
-        "description": "Performs comprehensive reconnaissance using Sn1per and saves the output to a file."
-    },
-    {
-        "name": "Autorecon",
-        "cmd": "sudo autorecon -t $TARGET_unique_urls.txt --all-plugins --accessible -v --wpscan.api-token <WPScan_API_KEY> -o $TARGET_autorecon.txt",
-        "description": "Performs automated reconnaissance using Autorecon and saves the output to a file."
-    },
-    {
-        "name": "LinkFinder",
-        "cmd": "python3 /usr/share/sniper/plugins/LinkFinder/linkfinder.py -d 1000 -v $TARGET_unique_urls.txt | tee $TARGET_links_found.txt",
-        "description": "Finds links and endpoints using LinkFinder and saves the output to a file."
-    },
-    {
-        "name": "Meg",
-        "cmd": "meg -d 1000 -v / $TARGET_httprobed.txt -o $TARGET_meg_massout.txt",
-        "description": "Finds hidden endpoints using Meg and saves the output to a file."
-    },
-    {
-        "name": "FFUF",
-        "cmd": "ffuf -w ~/wordlists/raft-large-directories.txt -u https://$TARGET/FUZZ -o $TARGET_ffuf.txt",
-        "description": "Performs directory fuzzing using FFUF and saves the output to a file."
-    },
-    {
-        "name": "SQLmap",
-        "cmd": "sqlmap -m $TARGET_httprobed.txt --batch --output-dir=$TARGET_sqlmap",
-        "description": "Performs SQL injection testing using SQLmap and saves the output to a file."
-    },
-    {
-        "name": "XSStrike",
-        "cmd": "python3 /home/kali/tools/XSStrike/xsstrike.py -u $TARGET --blind --file /usr/share/seclists/Fuzzing/XSS/robot-friendly/XSS-Cheat-Sheet-PortSwigger.txt -e base64 --crawl --headers ~/tools/multiviz/403.txt -l 4 -o $TARGET_xsstrike.json",
-        "description": "Performs XSS testing using XSStrike and saves the output to a file."
-    },
-    {
-        "name": "Dirsearch",
-        "cmd": "dirsearch -u https://$TARGET -e php,html,js,txt -x 400,403,404 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -o $TARGET_dirsearch.txt",
-        "description": "Performs directory and file brute-forcing using Dirsearch and saves the output to a file."
-    },
-    {
-        "name": "Subjack",
-        "cmd": "subjack -w $TARGET_unique_doms.txt -t 100 -timeout 30 -ssl -v 3 -c ~/go/src/github.com/haccer/subjack/fingerprints.json -o $TARGET_subjack.txt",
-        "description": "Checks for subdomain takeover vulnerabilities using Subjack and saves the output to a file."
-    },
-    {
-        "name": "CSP Evaluator",
-        "cmd": "python3 ~/tools/csp_evaluator/evaluate.py --domains $TARGET_unique_doms.txt --output $TARGET_csp.txt",
-        "description": "Evaluates Content Security Policies (CSP) using CSP Evaluator and saves the output to a file."
-    },
-    {
-        "name": "GitHound",
-        "cmd": "githound --dig-files --dig-commits --many-results --repo-url https://github.com/$TARGET --output $TARGET_githound.txt",
-        "description": "Gathers information from GitHub repositories using GitHound and saves the output to a file."
-    },
-    {
-        "name": "LinkFinder",
-        "cmd": "python3 ~/tools/LinkFinder/linkfinder.py -i $TARGET -o cli | tee $TARGET_linkfinder.txt",
-        "description": "Finds links and endpoints using LinkFinder and saves the output to a file."
-    }
+    {"name": "assetfinder", "cmd": "assetfinder $TARGET | tee $TARGET_assetfinder.txt"},
+    {"name": "Subfinder -d", "cmd": "subfinder -d $TARGET | tee $TARGET_subfinder.txt"},
+    {"name": "Subfinder -list", "cmd": "subfinder -l $TARGET_FILE | tee $TARGET_subfinder_list.txt"},
+    {"name": "Sublist3r", "cmd": "sublist3r -d $TARGET -b -p 21,22,25,80,443,445,8080 -v -t 100 -e google.com | tee $TARGET_sublist3r.txt"},
+    {"name": "Amass", "cmd": "amass enum -d $TARGET -o $TARGET_amass.txt"},
+    {"name": "MassDNS", "cmd": "massdns -r ~/tools/multiviz/resolve.txt -t A -o S -w /usr/share/seclists/Discovery/DNS/bug-bounty-program-subdomains-trickest-inventory.txt $TARGET_massdns.txt"},
+    {"name": "Sort and Unique", "cmd": "cat $TARGET_assetfinder.txt $TARGET_amass.txt $TARGET_subfinder.txt $TARGET_amass.txt | sort | uniq | tee $TARGET_unique_doms.txt"},
+    {"name": "Resolver", "cmd": "shuffledns -list $TARGET_unique_doms.txt -r ~/tools/multiviz/resolve.txt -mode resolve | tee $TARGET_resolved.txt"},
+    {"name": "Dnsx recon", "cmd": "dnsx -d $TARGET -cdn -recon -re -w /usr/share/seclists/Discovery/DNS/bug-bounty-program-subdomains-trickest-inventory.txt -r ~/tools/multiviz/resolve.txt"},
+    {"name": "HTTprobe", "cmd": "cat $TARGET_resolved.txt | httprobe | tee $TARGET_httprobed.txt"},
+    {"name": "403-checker", "cmd": "sudo ~/tools/multiviz/curly.sh $TARGET_unique_doms.txt ~/tools/multiviz/403.txt | tee $TARGET_403.txt"},
+    {"name": "Waybackpy", "cmd": "waybackpy -u https://$TARGET -ku -sub | tee $TARGET_wayback_urls.txt"},
+    {"name": "Gau", "cmd": "echo $TARGET | sudo gau | tee $TARGET_gau.txt"},
+    {"name": "Sort URLs", "cmd": "cat $TARGET_httprobed.txt $TARGET_waybackurls.txt $TARGET_gau.txt | sort | uniq | tee $TARGET_unique_URLs.txt"},
+    {"name": "Nuclei", "cmd": "nuclei -l $TARGET_unique_doms.txt -t /home/kali/.bbot/tools/nuclei-templates/ -o $TARGET_nuclei.txt"},
+    {"name": "GF Pattern Matching", "cmd": "gf xss $TARGET_unique_URLs.txt | tee $TARGET_gf_xss.txt"},
+    {"name": "Sn1per", "cmd": "sudo sniper -f $TARGET_unique_doms.txt -m nuke -w $TARGET_Workspace | tee $TARGET_sniper.txt"},
+    {"name": "Autorecon", "cmd": "sudo autorecon -t $TARGET_unique_doms.txt --all-plugins --accessible -v --wpscan.api-token Z8IRzWJRsn0CbxrZFNy8vvfAzff6xBunqbMY8kmhu3s | tee $TARGET_autorecon.txt"},
+    {"name": "LinkFinder", "cmd": "python3 /usr/share/sniper/plugins/LinkFinder/linkfinder.py -d 1000 -v $TARGET_unique_URLs.txt | tee $TARGET_links_found.txt"},
+    {"name": "Meg", "cmd": "meg -d 1000 -v / $TARGET_httprobed.txt | tee $TARGET_MEG_massout.txt"},
+    {"name": "FFUF", "cmd": "ffuf -w ~/wordlists/raft-large-directories.txt -u https://$TARGET/FUZZ -o $TARGET_ffuf.txt"},
+    {"name": "SQLmap", "cmd": "sqlmap -m $TARGET_httprobed.txt --batch --output-dir=$TARGET_sqlmap"},
+    {"name": "XSStrike", "cmd": "python3 /home/kali/tools/XSStrike/xsstrike.py -u $TARGET --blind --file /usr/share/seclists/Fuzzing/XSS/robot-friendly/XSS-Cheat-Sheet-PortSwigger.txt -e base64 --crawl --headers ~/tools/multiviz/403.txt -l 4 -o $TARGET_xsstrike.json"},
+    {"name": "Dirsearch", "cmd": "dirsearch -u https://$TARGET -e php,html,js,txt -x 400,403,404 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -o $TARGET_dirsearch.txt"},
+    {"name": "Subjack", "cmd": "subjack -w $TARGET_unique_doms.txt -t 100 -timeout 30 -ssl -v 3 -c ~/go/src/github.com/haccer/subjack/fingerprints.json -o $TARGET_subjack.txt"},
+    {"name": "CSP Evaluator", "cmd": "python3 ~/tools/csp_evaluator/evaluate.py --domains $TARGET_unique_doms.txt --output $TARGET_csp.txt"},
+    {"name": "GitHound", "cmd": "githound --dig-files --dig-commits --many-results --repo-url https://github.com/$TARGET --output $TARGET_githound.txt"},
+    {"name": "LinkFinder", "cmd": "python3 ~/tools/LinkFinder/linkfinder.py -i $TARGET -o cli | tee $TARGET_linkfinder.txt"}
 ]
