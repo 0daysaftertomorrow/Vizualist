@@ -22,7 +22,7 @@ class GUI:
         self.start_window = tk.Toplevel(master)
         self.start_window.title("Start Investigation")
         self.start_window.geometry("400x150")
-
+        self.start_window.position(500,500)
         self.target_label = ttk.Label(self.start_window, text="Enter domain name or select a file:")
         self.target_label.pack(pady=5)
         self.target_entry = ttk.Entry(self.start_window, width=50)
@@ -135,7 +135,7 @@ class GUI:
 
     def load_programs(self):
         try:
-            with open(os.path.expanduser("~/tools/vizualist/programs.json")) as f:
+            with open(os.path.expanduser("/home/kali/tools/vizualist/programs.json")) as f:
                 self.programs = json.load(f)
             for program in self.programs:
                 self.programs_listbox.insert(tk.END, program["name"])
