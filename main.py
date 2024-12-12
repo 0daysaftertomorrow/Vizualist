@@ -7,7 +7,6 @@ import os
 import subprocess
 import json
 import Pmw
-import threading
 
 class GUI:
     def __init__(self, master):
@@ -20,17 +19,14 @@ class GUI:
 
         # Create start investigation window
         self.start_window = tk.Toplevel(master)
-        self.start_window.title("Start Investigation")
-        self.start_window.geometry("400x150")
-        self.start_window.position(500,500)
-        self.target_label = ttk.Label(self.start_window, text="Enter domain name or select a file:")
+        self.start_window.title("Enter Target")
+
+        self.target_label = ttk.Label(self.start_window, text="Enter domain name:")
         self.target_label.pack(pady=5)
         self.target_entry = ttk.Entry(self.start_window, width=50)
         self.target_entry.pack(pady=5)
-        self.browse_button = ttk.Button(self.start_window, text="Browse", command=self.browse_file)
-        self.browse_button.pack(side=tk.LEFT, padx=5, pady=5)
-        self.run_button = ttk.Button(self.start_window, text="Run", command=self.start_investigation)
-        self.run_button.pack(side=tk.RIGHT, padx=5, pady=5)
+        self.run_button = ttk.Button(self.start_window, text="Start", command=self.enter_target)
+        self.run_button.pack(pady=5)
 
         # Create frames
         self.console_frame = ttk.Frame(master)
@@ -72,10 +68,6 @@ class GUI:
         self.add_button = ttk.Button(self.programs_frame, text="Add to Launch List", command=self.add_to_launch_list)
         self.add_button.pack(side=tk.BOTTOM)
 
-        # Help button
-        self.help_button = ttk.Button(self.programs_frame, text="?", style="Help.TButton", command=self.show_help)
-        self.help_button.place(relx=0.95, rely=0.01, anchor=tk.NE)
-
         # Create widgets for launch frame
         self.launch_listbox = tk.Listbox(self.launch_frame, width=30)
         self.launch_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -100,18 +92,12 @@ class GUI:
         self.programs_listbox.bind('<Motion>', self.show_tooltip)
         self.launch_listbox.bind('<<ListboxSelect>>', self.update_command_text)
 
-        # Style the help button
-        style = ttk.Style()
-        style.configure("Help.TButton", font=("Helvetica", 12, "bold"), relief=tk.RAISED, borderwidth=2, background="lightblue", foreground="black")
+    def enter_target(self):
+        target = self.target_entry.get().strip()
+        if not target:
+            messagebox.showwarning("Warning", "Please enter a domain name.")
+            return
 
-    def browse_file(self):
-        file_path = filedialog.askopenfilename()
-        if file_path:
-            self.target_entry.delete(0, tk.END)
-            self.target_entry.insert(0, file_path)
-
-    def start_investigation(self):
-        target = self.target_entry.get()
         if os.path.isfile(target):
             target_file = target
             target = os.path.basename(target_file).split('.')[0]
@@ -135,7 +121,7 @@ class GUI:
 
     def load_programs(self):
         try:
-            with open(os.path.expanduser("/home/kali/tools/vizualist/programs.json")) as f:
+            with open(os.path.expanduser("~/tools/multiviz/programs.json")) as f:
                 self.programs = json.load(f)
             for program in self.programs:
                 self.programs_listbox.insert(tk.END, program["name"])
@@ -163,17 +149,7 @@ class GUI:
 
     def run_code_list(self):
         self.console_text.delete(1.0, tk.END)
-        threads = []
         for program_name in self.launch_listbox.get(0, tk.END):
-            thread = threading.Thread(target=self.run_program, args=(program_name,))
-            threads.append(thread)
-            thread.start()
-
-        for thread in threads:
-            thread.join()
-
-    def run_program(self, program_name):
-        try:
             program = next(p for p in self.programs if p["name"] == program_name)
             command = program["cmd"]
             self.console_text.insert(tk.END, f"Running: {command}\n")
@@ -181,14 +157,12 @@ class GUI:
             output, error = process.communicate()
             self.console_text.insert(tk.END, f"{program_name} Output:\n{output.decode()}\n")
             self.console_text.insert(tk.END, f"{program_name} Errors:\n{error.decode()}\n")
-        except Exception as e:
-            self.console_text.insert(tk.END, f"Error running {program_name}: {str(e)}\n")
 
     def show_tooltip(self, event):
         index = self.programs_listbox.nearest(event.y)
         if index >= 0:
             program = self.programs[index]
-            self.balloon.bind(self.programs_listbox, program["description"], program["name"])
+            self.balloon.bind(self.programs_listbox, program["cmd"], program["name"])
 
     def update_command_text(self, event=None):
         self.command_text.delete(1.0, tk.END)
@@ -197,28 +171,12 @@ class GUI:
             self.command_text.insert(tk.END, f"{program['cmd']}\n")
 
     def change_target(self):
-        new_target = self.target_text.get()
+        new_target = self.target_text.get().strip()
         if new_target:
             os.environ['TARGET'] = new_target
             self.console_text.insert(tk.END, f"TARGET changed to: {new_target}\n")
 
-    def show_help(self):
-        selected_index = self.programs_listbox.curselection()
-        if selected_index:
-            program_name = self.programs_listbox.get(selected_index)
-            program = next(p for p in self.programs if p["name"] == program_name)
-            command = program["cmd"].split()[0] + " --help"
-            self.console_text.insert(tk.END, f"Running help for: {command}\n")
-            try:
-                process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                output, error = process.communicate()
-                self.console_text.insert(tk.END, f"Help Output:\n{output.decode()}\n")
-                self.console_text.insert(tk.END, f"Help Errors:\n{error.decode()}\n")
-            except Exception as e:
-                self.console_text.insert(tk.END, f"Error running help for {program_name}: {str(e)}\n")
-
 if __name__ == "__main__":
     root = tk.Tk()
-    root.geometry("900x600")
     gui = GUI(root)
     root.mainloop()
